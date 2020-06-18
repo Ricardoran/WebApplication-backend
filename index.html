@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Homework 8</title>
+
+<!--    Style sheet     -->
+    <style>
+        /*tag*/
+        body{
+            text-align: center;
+            position: relative;
+            font-family: "Times New Roman", Times, serif;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        input{
+            height: 20px;
+            vertical-align: middle;
+            border-radius: 3px;
+            border: 1px solid gray;
+        }
+        select{
+            width: 500px;
+            height: 25px;
+        }
+        hr{
+            position: absolute;
+            top: 480px;
+            color: gray;
+            border-width: thin;
+            width: 100%;
+        }
+
+
+
+        /*class*/
+        .logo{
+            text-align: center;
+        }
+        .ebay_logo{
+            width: 320px;
+            height: 128px;
+        }
+        .input_range{
+            position: relative;
+            text-align: left;
+            width: 700px;
+            margin: auto;
+            /*border: 3px solid green;*/
+        }
+
+        .input_prompt{
+            height: 45px;
+            width: 200px;
+        }
+        .search{
+             width: 60px;
+             position: absolute;
+             right: 80px;
+         }
+        .clear{
+            width: 60px;
+            position: absolute;
+            right: 0;
+        }
+
+
+        /*id*/
+        #star{
+            color: red;
+        }
+
+    </style>
+
+</head>
+<body>
+    <div class="logo">
+        <img src="https://csci571.com/hw/hw8/images/ebayHome.png" alt="ebay" class="ebay_logo">
+    </div>
+
+    <div class="input_range">
+        <form id="input" action="javascript: search_item()">
+            <table class="input_table">
+                <tr>
+                    <td class="input_prompt">
+                        <span>Key words<span id="star">*</span></span>
+                    </td>
+                    <td>
+                        <label>
+                            <input type="text" placeholder=" Enter Keywords" style="width: 500px">
+                        </label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="input_prompt">
+                        <span>Price range</span>
+                    </td>
+                    <td>
+                        <input type="number" placeholder=" Min Price" style="width: 245px;">
+                        <input type="number" placeholder=" Max Price" style="width: 245px;">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="input_prompt">
+                        <span>Condition</span>
+                    </td>
+                    <td>
+                        <input type="checkbox" name="new_cond" value="New">New
+                        <input type="checkbox" name="used_cond" value="Used">Used
+                        <input type="checkbox" name="vgood_cond" value="VeryGood">Very Good
+                        <input type="checkbox" name="good_cond" value="Good">Good
+                        <input type="checkbox" name="accept_cond" value="Acceptable">Acceptable
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="input_prompt">
+                        <span>Seller</span>
+                    </td>
+
+                    <td>
+                        <input type="checkbox">Return Accepted
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="input_prompt">
+                        <span>Shipping</span>
+                    </td>
+                    <td>
+                        <input type="checkbox">Free
+                        <input type="checkbox">Expedited
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="input_prompt">
+                        <span>Sort Order</span>
+                    </td>
+                    <td>
+                        <Select>
+                            <option value="BestMatch">BestMatch</option>
+                            <option value="CurrentPriceHighest">CurrentPriceHighest</option>
+                            <option value="PricePlusShippingHighest">PricePlusShippingHighest</option>
+                            <option value="PricePlusShippingLowest">PricePlusShippingLowest</option>
+                        </Select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+
+                    </td>
+                    <td>
+                        <input type="submit" value="Search" class="search">
+                        <input type="reset" value="Clear" class="clear">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <hr>
+
+    <script>
+        function search_item() {
+            console.log("search starts");
+            var xml_http = new XMLHttpRequest();
+            xml_http.onreadystatechange = function () {
+                if (xml_http.readyState === 4 && xml_http.status === 200){
+                    console.log("Form successfully submitted");
+                    display_result(xml_http.response);
+                }
+            };
+
+            var input_parameters = new FormData(document.getElementById('input'));
+            let flag_val = true;
+            let search_page = "/result";
+
+            for (var k of input_parameters.keys()) {
+                // add '?' after '/result'
+                if (flag_val === true) {
+                    search_page += '?';
+                    flag_val = false;
+                } else {
+                    search_page += '&';
+                }
+                search_page += k;   // get key
+                search_page += '=';
+                search_page += input_parameters.get(k);  // get value
+            }
+
+            var form_data = document.getElementById('input');
+            // different conditions
+            //console.log('different conditions below');
+            var new_cond = form_data.filter_cond_new;
+            var used_cond = form_data.filter_cond_used; // 'filter_cond_used'
+            var very_good_cond = form_data.filter_cond_very_good; // 'filter_cond_very_good'
+            var good_cond = form_data.filter_cond_good; // 'filter_cond_good'
+            var accept = form_data.filter_cond_acceptable;  // 'filter_cond_acceptable'
+
+            // this list contains the list of names of the 'condition'
+            // 'filter_cond_new'
+            // 'filter_cond_used'
+            // 'filter_cond_very_good'
+            // 'filter_cond_good'
+            // 'filter_cond_acceptable'
+            var condition_list = [new_cond, used_cond, very_good_cond, good_cond, accept];
+
+            //console.log(condition_list);
+
+            for (var i = 0; i < condition_list.length; i++) {
+                if (condition_list[i].checked) {
+                    search_page += '&';
+                    search_page += condition_list[i]; // 'filter_cond_new'
+                    search_page += '=';
+                    search_page += condition_list[i].value;  // 3000
+                }
+            }
+            console.log("url: " + search_page);
+            xml_http.open("GET", search_page, true);
+            xml_http.send();
+
+        }
+        
+        function display_result() {
+
+        }
+    </script>
+</body>
+</html>
