@@ -338,6 +338,4 @@ function processData(data){
 
 
 
-app.listen(port, function () {
-  console.log("The server is running on at http://localhost:%s", port);
-});
+module.exports = app
